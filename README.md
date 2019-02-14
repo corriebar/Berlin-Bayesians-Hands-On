@@ -22,11 +22,17 @@ https://arviz-devs.github.io/arviz/
 
 ## Get started
 If you don't know where to start, consider some of these examples:
+
 PyMC3: https://docs.pymc.io/nb_examples/index.html
+
 Stan: https://mc-stan.org/docs/2_18/stan-users-guide/linear-regression.html
+
 PyStan: https://mc-stan.org/users/documentation/case-studies/pystan_workflow.html
+
 RStan: https://mc-stan.org/users/documentation/case-studies/rstan_workflow.html
+
 RStanArm: http://mc-stan.org/rstanarm/articles/continuous.html
+
 brms: http://paul-buerkner.github.io/brms/
 
 
