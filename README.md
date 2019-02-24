@@ -28,7 +28,7 @@ Provided you have a local Anaconda installation (see [here](https://www.anaconda
 
 This should come with the most relevant PyMC3-centric Bayesian Data Analysis packages. Simply run the following command
 
-`conda env create -f berlinbayesians.yml`
+`conda env create -f berlinbayesians_environment.yml`
 
 ## Get started
 If you don't know where to start, consider some of these examples:
