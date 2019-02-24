@@ -113,6 +113,17 @@ d <- d %>%
   select(-log_gdp) %>% 
   left_join( gdp, by=c("country", "year")) %>%
   select(country, country_code, region, continent, year, happiness, gdp, log_gdp, social:gini_household)
+
+missing_country_codes <- c("Swaziland"="SWZ",
+  "Palestinian Territories"="PSE",
+  "North Cyprus"="CYP",
+  "Somaliland"="SOM",
+  "Taiwan Province of China"="TWN")
+
+d <- d %>% 
+ mutate(country_code = ifelse(is.na(country_code), country, country_code)) %>%
+  mutate(country_code = str_replace_all(country_code, missing_country_codes))
+  
 ```
 
 ## How happy are people around the world?
