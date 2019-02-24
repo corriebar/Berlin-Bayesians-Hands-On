@@ -1,5 +1,5 @@
 ---
-title: "Happiness World Report -- Exploratory Analysis"
+title: "Happiness World Report - Exploratory Analysis"
 author: "Corrie"
 date: "February 23, 2019"
 output: rmarkdown::github_document
@@ -134,7 +134,6 @@ d %>%
   filter(year==2017) %>%
   ggplot(aes(x=happiness)) +
   geom_histogram(bins=20, fill="steelblue", col="white") +
- # xlim(0,10) +
   labs(x="Happiness", y="Count", title="Happiness in 2017") + 
   geom_vline(xintercept = mean(d %>% filter(year == 2017) %>% pull(happiness))) + 
   scale_x_continuous(breaks = c(0, 2.5,  5, 5.49, 7.5, 10), 
@@ -344,7 +343,7 @@ d %>%
   scale_color_manual(values=c("black", "#E41A1C"), 
                      breaks=c( TRUE), labels="Africa", name="") + 
   theme_minimal() +
-  labs(x="Confidence in Government", y="Happiness")
+  labs(x="Confidence in Government", y="Happiness") +
   guides(colour = guide_legend(override.aes = list(size=3))) 
 ```
 
@@ -410,7 +409,7 @@ pop <- read_csv("data/worldbank_population.csv",
 d <- d %>%
   left_join(pop, by=c("country", "year"))
 ```
-```{r, fig.height=5, fig.width=8, message=F}
+```{r, fig.height=8, fig.width=8, message=F}
 
 xlabs <- c(1000, 10000, 100000)
 options(scipen = 6)
