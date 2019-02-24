@@ -22,6 +22,14 @@ https://mc-stan.org/users/interfaces/
 If you use PyStan or PyMC3, consider also the package ArviZ. It is a Python package for visualization of Bayesian models
 https://arviz-devs.github.io/arviz/
 
+### Prepared PyMC3/ArviZ environment
+
+Provided you have a local Anaconda installation (see [here](https://www.anaconda.com/distribution/) and [here](https://docs.anaconda.com/anaconda/install/)), you can use our prepared PyMC3/ArviZ environment.
+
+This should come with the most relevant PyMC3-centric Bayesian Data Analysis packages. Simply run the following command
+
+> conda env create -f berlinbayesians.yml
+
 ## Get started
 If you don't know where to start, consider some of these examples:
 
