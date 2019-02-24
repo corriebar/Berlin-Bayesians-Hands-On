@@ -30,6 +30,8 @@ This should come with the most relevant PyMC3-centric Bayesian Data Analysis pac
 
 > conda env create -f berlinbayesians.yml
 
+A short working example of how to implement a linear model in PyMC and visualize it with Arviz can be found [here](https://github.com/ermeel86/ermeel86.github.io/blob/master/meetups/berlinbayesians/PyMC3_ArviZ_Practical_Minimum.ipynb).
+
 ## Get started
 If you don't know where to start, consider some of these examples:
 
