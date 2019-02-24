@@ -1,4 +1,4 @@
-Happiness World Report -- Exploratory Analysis
+Happiness World Report - Exploratory Analysis
 ================
 Corrie
 February 23, 2019
