@@ -24,11 +24,11 @@ https://arviz-devs.github.io/arviz/
 
 ### Prepared PyMC3/ArviZ environment
 
-Provided you have a local Anaconda installation (see [here](https://www.anaconda.com/distribution/) and [here](https://docs.anaconda.com/anaconda/install/)), you can use our prepared PyMC3/ArviZ environment.
+Provided you have a local Anaconda installation (see [here](https://www.anaconda.com/distribution/) and [here](https://docs.anaconda.com/anaconda/install/)), you can use our prepared PyMC3/ArviZ environment ([YAML-File](berlinbayesians_environment.yml)).
 
 This should come with the most relevant PyMC3-centric Bayesian Data Analysis packages. Simply run the following command
 
-> conda env create -f berlinbayesians.yml
+`conda env create -f berlinbayesians_environment.yml`
 
 A short working example of how to implement a linear model in PyMC and visualize it with Arviz can be found [here](https://github.com/ermeel86/ermeel86.github.io/blob/master/meetups/berlinbayesians/PyMC3_ArviZ_Practical_Minimum.ipynb).
 
