@@ -24,7 +24,7 @@ https://arviz-devs.github.io/arviz/
 
 ### Prepared PyMC3/ArviZ environment
 
-Provided you have a local Anaconda installation (see [here](https://www.anaconda.com/distribution/) and [here](https://docs.anaconda.com/anaconda/install/)), you can use our prepared PyMC3/ArviZ environment.
+Provided you have a local Anaconda installation (see [here](https://www.anaconda.com/distribution/) and [here](https://docs.anaconda.com/anaconda/install/)), you can use our prepared PyMC3/ArviZ environment ([YAML-File](berlinbayesians_environment.yml)).
 
 This should come with the most relevant PyMC3-centric Bayesian Data Analysis packages. Simply run the following command
 
