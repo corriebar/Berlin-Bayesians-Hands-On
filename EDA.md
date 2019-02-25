@@ -12,7 +12,9 @@ For the happiness score, respondents are asked where they stand on the *Cantril 
 
 ![](cantril_ladder.png)
 
-In this report, the scale goes from 0 to 10, that is, 0 is the worst possible life and 10 the best possible.
+In this report, the scale goes from 0 to 10, that is, 0 is the worst possible life and 10 the best possible. The english wording of the question is:
+
+> Please imagine a ladder, with steps numbered from 0 at the bottom to 10 at the top. The top of the ladder represents the best possible life for you and the bottom of the ladder represents the worst possible life for you. On which step of the ladder would you say you personally feel you stand at this time?
 
 The responses are averaged on a country-year level. The report also includes variables that could explain the differences in the happiness scores. Note that these explanatory variables were not used to compute the happiness score. A detailed description of these additional variables, their sources as well as number of respondents per year and country can be found [here](https://s3.amazonaws.com/happiness-report/2018/Appendix1ofChapter2.pdf).
 
@@ -112,4 +114,4 @@ We can also add population data and thus recreate the famous gapminder plot, alb
 
 ![](EDA_files/figure-markdown_github/unnamed-chunk-15-1.gif)
 
-We can see that most countries increase their happiness score with increasing GDP (or decreasing happiness with decreasing GDP). However, there are also some countries that see a decrease or increase in happiness without changes in the GDP.
+We can see that most countries increase their happiness score with increasing GDP (or decreasing happiness with decreasing GDP). However, there are also some countries that see a decrease or increase in happiness without changes in the GDP. Some countries also seem to be quite "jumpy" indicating that some factors can lead to a rapid increase or decrease in both happiness and GDP.
