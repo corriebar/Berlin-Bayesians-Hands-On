@@ -2,7 +2,7 @@
 
 
 ## The data
-We're using the [World Happiness Report](http://worldhappiness.report/) from 2018. We made some preprocessing to the data so that it is easier to work with. If you want to see the processing steps, check this [file](Data_Processing.md). The resulting data frame is called [`preprocessed_data.csv](data/preprocessed_data.csv).
+We're using the [World Happiness Report](http://worldhappiness.report/) from 2018. We made some preprocessing to the data so that it is easier to work with. If you want to see the processing steps, check this [file](Data_Processing.md). The resulting data frame is called [`preprocessed_data.csv`](data/preprocessed_data.csv).
 
 A short exploratory data analysis with a description of important variables can be found [here](EDA.md).
 
