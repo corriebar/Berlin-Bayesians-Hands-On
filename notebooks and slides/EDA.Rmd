@@ -14,7 +14,7 @@ We will be using the data as provided by the World Happiness Report. The report 
 
 For the happiness score, respondents are asked where they stand on the _Cantril Ladder_. The Cantril Ladder consists of 10 steps, where the top is your best possible life and the bottom the worst possible life.
 
-![](cantril_ladder.png)
+![](img/cantril_ladder.png)
 
 In this report, the scale goes from 0 to 10, that is, 0 is the worst possible life and 10 the best possible. The english wording of the question is:
 
@@ -35,7 +35,7 @@ unlockBinding("ggplot",parent.env(asNamespace("GGally")))
 assign("ggplot",ggplot,parent.env(asNamespace("GGally")))
 ```
 ```{r, message=F, warning=F, echo=F}
-d <- read_csv("data/WHR2018Chapter2OnlineData.csv") %>%
+d <- read_csv("../data/WHR2018Chapter2OnlineData.csv") %>%
   rename(happiness =`Life Ladder`, 
          log_gdp =`Log GDP per capita`, 
          social = `Social support`, 
@@ -65,7 +65,7 @@ missing_regions <- c("Comoros" = "Sub-Saharan Africa",
   "Suriname" = "Latin America and Caribbean",
   "Swaziland" = "Sub-Saharan Africa")
 
-d2 <- read_csv("data/WHR2018Chapter2OnlineData_supporting_factors.csv") %>%
+d2 <- read_csv("../data/WHR2018Chapter2OnlineData_supporting_factors.csv") %>%
   select(country, region = `Region indicator`) 
 
 
@@ -101,7 +101,7 @@ country_spell_list <- c("Egypt, Arab Rep."="Egypt",
    "Lao PDR"="Laos",
    "Venezuela, RB"="Venezuela")
 
-gdp <- read_csv("data/worldbank_gdp.csv",
+gdp <- read_csv("../data/worldbank_gdp.csv",
                 skip=3) %>%
   rename(country=`Country Name`, country_code=`Country Code`) %>%
   select(country, country_code, `1960`:`2017`) %>%
@@ -132,7 +132,7 @@ d <- d %>%
 ## How happy are people around the world?
 So before we look at the explaining factors, let's have a look how happy people are in general around the World.
 
-```{r, warning=F, message=F}
+```{r, happy-plot, warning=F, message=F}
 d %>% 
   filter(year==2017) %>%
   ggplot(aes(x=happiness)) +
@@ -150,7 +150,7 @@ Even thought the ladder goes from 0 to 10, the worst average rating a country ca
 ### Happiness over Time
 An interesting question is here, did happiness improve over time? The report goes back to 2005 (though many countries are only included later) and the newest observation is from 2017.
 
-```{r, message=F, warning=F}
+```{r, time-plot, message=F, warning=F}
 trend <- d %>%
   group_by(year) %>%
   summarise(happiness = mean(happiness))
@@ -174,7 +174,7 @@ The top happiness scores seems to be dominated by European countries and the bot
 Let's have a closer look how the happiness scores are distributed geographically over the world. Since there didn't seem too much change in the happiness scores, we simply take the average for each country over all reported years. This way, we can include most countries since some countries have missing observations in some years.
 
 
-```{r, fig.height=6, fig.width=9, dpi=200}
+```{r, world-plot, fig.height=6, fig.width=9, dpi=200}
 map_correction <- c("Democratic Republic of the Congo"="Congo (Brazzaville)",
                     "Palestine"="Palestinian Territories",
                     "Republic of Congo"="Congo (Kinshasa)",
@@ -208,7 +208,7 @@ Interesting are here in particular countries such as Yemen, Afghanistan or Cambo
 ### Happiest and Unhappiest countries
 Which countries are the happiest and which the unhappiest countries?
 
-```{r, fig.height=6, fig.width=7}
+```{r, happiest-unhappiest, fig.height=6, fig.width=7}
 happiest <- d %>% 
   group_by(country) %>%
   summarize(happiness=mean(happiness, na.rm=T),
@@ -266,7 +266,7 @@ Two different economical indicators are provided:
 
 The `generosity` factor is computed with relation to the GDP: People were asked if they have donated to charity in the past month. The binary answers are then aggregated on a national level and regressed on by the GDP per capita. The generosity value is then the residual, that is, it gives an indicator if people give more or less money to charity than would be expected by their GDP.
 
-```{r, fig.height=9, fig.width=9, dpi=200, message=F, warning=F}
+```{r, economical-plot, fig.height=9, fig.width=9, dpi=200, message=F, warning=F}
 d %>% 
   filter(year == 2017) %>%
   select(Happiness=happiness, 
@@ -290,7 +290,7 @@ Three social factors are included in the data:
 - `pos_affect` is the average to three questions about how a person felt the previous day: Were they happy, laughed, smiled and were mostly enjoying themselves.
 - `neg_affect` is the average to three questions about how a person felt the previous day: Did they worry, were they sad or angry.
 
-```{r, fig.height=9, fig.width=9, dpi=200, message=F, warning=F}
+```{r, social-plot, fig.height=9, fig.width=9, dpi=200, message=F, warning=F}
 d %>% 
   filter(year == 2017) %>%
   select(Happiness=happiness, 
@@ -316,7 +316,7 @@ The data provides 5 political factors:
 - `gov_confidence`, how confident are people in the national government. National average to the binary question "Do you have confidence in the national government?", as such the variable is between 0 and 1.
 - `democracy` and `delivery`, democratic and delivery quality measures of governance are based on Worldwide Governance Indicators. Democracy and Delivery are strongly positively correlated, so we'll omit the variable `delivery` from the pairs plot. Both indicators are on a scale roughly with mean zero and a standard deviation of 1.
 
-```{r, fig.height=9, fig.width=9, dpi=200}
+```{r, political-plot, fig.height=9, fig.width=9, dpi=200}
 d %>% 
   filter(year == 2016) %>%
   select(Happiness=happiness, 
@@ -358,11 +358,11 @@ To be able to join additional data, it should be available for most countries an
 ### Temperature and Rain Data
 [Climate Data](https://datacatalog.worldbank.org/dataset/climate-change-knowledge-portal-historical-data) can be found on the web page of the World Bank. They provide both the average temperature per year and the total yearly precipitation.
 
-```{r, fig.height=8, fig.width=8}
-temp <- read_csv("data/temperature_data.csv") %>%
+```{r, temp-rain-plot, fig.height=8, fig.width=8}
+temp <- read_csv("../data/temperature_data.csv") %>%
   select(country_code=ISO_3DIGIT, avg_temp=Annual_temp)
 
-rain <- read_csv("data/precipitation_data.csv") %>%
+rain <- read_csv("../data/precipitation_data.csv") %>%
   select(country_code=ISO_3DIGIT, annual_precip=Annual_precip)
 
 temp_plot <- d %>%
@@ -400,8 +400,8 @@ temp_plot + plot_spacer() + rain_plot + plot_layout(ncol=1,
 ### Population Data and the famous Gapminder Plot
 We can also add population data and thus recreate the famous gapminder plot, albeit with happiness instead of with life expectancy on the y-axis. [Population data](https://data.worldbank.org/indicator/sp.pop.totl) is also provided by the World Bank.
 
-```{r, warning=F, message=F}
-pop <- read_csv("data/worldbank_population.csv",
+```{r, gapminder-plot, warning=F, message=F}
+pop <- read_csv("../data/worldbank_population.csv",
                 skip=3) %>%
   select(country=`Country Name`, `1960`:`2017`) %>%
   mutate(country = str_replace_all(country, country_spell_list)) %>%

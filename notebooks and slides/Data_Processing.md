@@ -1,22 +1,19 @@
----
-title: "Data Preprocessing"
-author: "Corrie"
-date: "February 23, 2019"
-output: rmarkdown::github_document
----
+Data Preprocessing
+================
+Corrie
+February 23, 2019
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
-```
+Preprocessing The Data
+----------------------
 
-## Preprocessing The Data
-We will be using the data provided by the World Happiness Report. The report from 2018 can be found [here](https://s3.amazonaws.com/happiness-report/2018/CH2-WHR-lr.pdf). 
+We will be using the data provided by the World Happiness Report. The report from 2018 can be found [here](https://s3.amazonaws.com/happiness-report/2018/CH2-WHR-lr.pdf).
 
 We first read in the data and change the column names to names easier to work with.
-```{r, message=F, warning=F}
+
+``` r
 library(tidyverse)
 
-d <- read_csv("data/WHR2018Chapter2OnlineData.csv") %>%
+d <- read_csv("../data/WHR2018Chapter2OnlineData.csv") %>%
   rename(happiness =`Life Ladder`, 
          log_gdp =`Log GDP per capita`, 
          social = `Social support`, 
@@ -35,8 +32,10 @@ d <- read_csv("data/WHR2018Chapter2OnlineData.csv") %>%
          gini_avg = `GINI index (World Bank estimate), average 2000-15`, 
          gini_household = `gini of household income reported in Gallup, by wp5-year`)
 ```
+
 The supporting data also includes a region indicator for the different countries. We can roughly sort these region indicators to their continents which makes it easier for plotting later. Note that Australia and New Zealand are in the same region as the US and Canada and thus landed on the continent Americas.
-```{r, message=F, warning=F}
+
+``` r
 missing_regions <- c("Comoros" = "Sub-Saharan Africa",
   "Cuba" = "Latin America and Caribbean",
   "Djibouti" = "Middle East and North Africa",
@@ -46,7 +45,7 @@ missing_regions <- c("Comoros" = "Sub-Saharan Africa",
   "Suriname" = "Latin America and Caribbean",
   "Swaziland" = "Sub-Saharan Africa")
 
-d2 <- read_csv("data/WHR2018Chapter2OnlineData_supporting_factors.csv") %>%
+d2 <- read_csv("../data/WHR2018Chapter2OnlineData_supporting_factors.csv") %>%
   select(country, region = `Region indicator`) 
 
 
@@ -64,9 +63,9 @@ d <- d %>%
                                   )) 
 ```
 
-The World Happiness Report only provides the Log of the GDP and by the time of publication, the GDP of 2017 wasn't available yet and extrapolated in the report. We can use the updated version of the GDP as provided by the [World Bank](https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.KD). We use the GDP per capita in purchasing power parity
-(PPP) at constant 2011 international dollar prices.
-```{r, message=F, warning=F}
+The World Happiness Report only provides the Log of the GDP and by the time of publication, the GDP of 2017 wasn't available yet and extrapolated in the report. We can use the updated version of the GDP as provided by the [World Bank](https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.KD). We use the GDP per capita in purchasing power parity (PPP) at constant 2011 international dollar prices.
+
+``` r
 country_spell_list <- c("Egypt, Arab Rep."="Egypt",
    "Russian Federation"="Russia",
    "Korea, Rep."="South Korea",
@@ -83,7 +82,7 @@ country_spell_list <- c("Egypt, Arab Rep."="Egypt",
    "Venezuela, RB"="Venezuela",
    "Syrian Arab Republic"="Syria")
 
-gdp <- read_csv("data/worldbank_gdp.csv",
+gdp <- read_csv("../data/worldbank_gdp.csv",
                 skip=3) %>%
   rename(country=`Country Name`, country_code=`Country Code`) %>%
   select(country, country_code, `1960`:`2017`) %>%
@@ -100,8 +99,10 @@ d <- d %>%
   select(country, country_code, region, continent,
          year, happiness, gdp, log_gdp, social:gini_household)
 ```
+
 Some countries are not in the GDP data, so we manually add the country code:
-```{r}
+
+``` r
 missing_country_codes <- c("Swaziland"="SWZ",
   "Palestinian Territories"="PSE",
   "North Cyprus"="CYP",
@@ -111,17 +112,19 @@ missing_country_codes <- c("Swaziland"="SWZ",
 d <- d %>% 
  mutate(country_code = ifelse(is.na(country_code), country, country_code)) %>%
   mutate(country_code = str_replace_all(country_code, missing_country_codes))
-  
 ```
 
+Adding Further Variables
+------------------------
 
-## Adding Further Variables
 We can easily add further data.
 
 ### Add Population Data
- For example, the World Bank also provides yearly [population data](https://data.worldbank.org/indicator/sp.pop.totl)
-```{r, warning=F, message=F}
-pop <- read_csv("data/worldbank_population.csv",
+
+For example, the World Bank also provides yearly [population data](https://data.worldbank.org/indicator/sp.pop.totl)
+
+``` r
+pop <- read_csv("../data/worldbank_population.csv",
                 skip=3) %>%
   select(country=`Country Name`, `1960`:`2017`) %>%
   mutate(country = str_replace_all(country, country_spell_list)) %>%
@@ -134,13 +137,14 @@ d <- d %>%
 ```
 
 ### Add Temperature and Rain Data
+
 We can add [Climate Data](https://datacatalog.worldbank.org/dataset/climate-change-knowledge-portal-historical-data):
 
-```{r}
-temp <- read_csv("data/temperature_data.csv") %>%
+``` r
+temp <- read_csv("../data/temperature_data.csv") %>%
   select(country_code=ISO_3DIGIT, avg_temp=Annual_temp)
 
-rain <- read_csv("data/precipitation_data.csv") %>%
+rain <- read_csv("../data/precipitation_data.csv") %>%
   select(country_code=ISO_3DIGIT, annual_precip=Annual_precip)
 
 d <- d %>%
@@ -150,9 +154,9 @@ d <- d %>%
   left_join(rain, by="country_code") 
 ```
 
+Save Data Frame
+---------------
 
-## Save Data Frame
-```{r}
-write_csv(d, path="data/preprocessed_data.csv")
+``` r
+write_csv(d, path="../data/preprocessed_data.csv")
 ```
-
