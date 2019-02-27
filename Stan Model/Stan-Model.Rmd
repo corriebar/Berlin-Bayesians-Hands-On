@@ -11,6 +11,75 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
-d <- read_csv("../data/")
+#library(brms)
+library(rstan)
+library(shinystan)
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+d <- read_csv("../data/preprocessed_data.csv")
+d2017 <- d %>% filter(year == 2017 & !is.na(happiness) & !is.na(log_gdp)) %>%
+  mutate(happiness_c = happiness - mean(happiness, na.rm=T),
+         continent_i=as.integer(as.factor(d2017$continent)))
+N <- nrow(d2017)
+continent_J <- length(unique(d2017$continent))
+head(d)
+```
+
+```{stan, output.var=happy_model}
+data {
+  int<lower=0> N;
+  int<lower=0> continent_J;
+  vector[N] log_gdp;
+  vector[N] happiness_c;
+  int<lower=1, upper=continent_J> continent[N];
+}
+
+parameters {
+  vector[continent_J] alpha;
+  real mu_a;
+  real<lower=0> sigma_a;
+  vector[continent_J] b_gdp;
+  real<lower=0> sigma;
+}
+
+transformed parameters{
+  vector[N] mu;
+  for(i in 1:N) {
+    mu = alpha[continent] + b_gdp[continent] * log_gdp[i];
+  }
+}
+
+model {
+  mu_a ~ normal(0, 5);
+  sigma_a ~ cauchy(0, 5);
+  sigma ~ cauchy(0, 5);
+  alpha ~ normal(mu_a, sigma_a);
+  b_gdp ~ normal(0, 2);
+  happiness_c ~ normal(mu, sigma);
+}
+
+generated quantities {
+  real mean_happiness;
+  vector[N] y_rep;
+  mean_happiness = mean(happiness_c);
+  for(i in 1:N) {
+    y_rep[i] = normal_rng(mu[i], sigma);
+  }
+}
+```
+
+```{r}
+happy_fit <- sampling(happy_model, data = list(N=N, happiness_c=d2017$happiness_c, 
+                                               log_gdp=d2017$log_gdp, continent=d2017$continent_i))
+```
+
+```{r}
+summary(happy_fit)
+```
+
+
+```{r}
+happiness_c <- d2017$happiness_c
+launch_shinystan(happy_fit)
 ```
 
