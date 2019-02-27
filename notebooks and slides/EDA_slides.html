@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Happiness World Report   -   Exploratory Analysis</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Corrie" />
+    <meta name="date" content="2019-02-27" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Happiness World Report <br /> - <br /> Exploratory Analysis
+### Corrie
+### February 27, 2019
+
+---
+
+
+
+
+
+## The Data
+
+&lt;br&gt; 
+
+.center[
+![](img/cantril_ladder.png)
+]
+
+
+---
+
+
+
+
+
+
+
+
+## How happy are people around the world?
+
+
+.center[
+![:scale 80%](EDA_slides_files/figure-html/happy-plot-1.png)
+]
+---
+### Happiness over Time
+
+
+.center[
+![:scale 90%](EDA_slides_files/figure-html/time-plot-1.png)
+]
+
+---
+### Happiness throughout the World
+
+
+.center[
+![](EDA_slides_files/figure-html/world-plot-1.png)
+]
+
+---
+
+### Happiest and Unhappiest countries
+
+.center[
+![:scale 85%](EDA_slides_files/figure-html/happiest-unhappiest-1.png)
+]
+
+---
+## Suporting Factors
+
+---
+### Economic Factors
+
+
+.center[
+![:scale 70%](EDA_slides_files/figure-html/economical-plot-1.png)
+]
+---
+### Social and Health Factors
+
+.center[
+![:scale 70%](EDA_slides_files/figure-html/social-plot-1.png)
+]
+---
+### Political Factors
+
+
+.center[
+![:scale 70%](EDA_slides_files/figure-html/political-plot-1.png)
+]
+
+
+
+---
+
+## Additional Data
+
+---
+
+### Climate Data
+
+
+.center[
+![:scale 80%](EDA_slides_files/figure-html/temp-plot-1.png)
+]
+
+---
+### Climate Data
+
+
+.center[
+![:scale 80%](EDA_slides_files/figure-html/rain-plot-1.png)
+]
+
+---
+
+### Population Data and the famous Gapminder Plot
+
+
+.center[
+![](EDA_slides_files/figure-html/gapminder-plot-1.gif)&lt;!-- --&gt;
+]
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="libs/macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": true,
+"highlightStype": "github",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

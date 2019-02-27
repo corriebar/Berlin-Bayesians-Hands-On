@@ -1,0 +1,443 @@
+---
+title: "Happiness World Report <br /> - <br /> Exploratory Analysis"
+author: "Corrie"
+date: "February 27, 2019"
+output:   
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      beforeInit: "libs/macros.js"
+      highlightLines: true  
+      highlightStype: github
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = F, warning = F)
+```
+
+
+## The Data
+
+<br> 
+
+.center[
+![](img/cantril_ladder.png)
+]
+
+
+---
+
+```{r, message=F, warning=F, echo=F}
+library(tidyverse)
+library(GGally)          # nice pair plots
+library(patchwork)       # patch plots together
+library(gganimate)       # fancy animations
+
+ggplot <- function(...) ggplot2::ggplot(...) + scale_color_brewer(palette="Set1") +scale_fill_brewer(palette="Set1")
+unlockBinding("ggplot",parent.env(asNamespace("GGally")))
+assign("ggplot",ggplot,parent.env(asNamespace("GGally")))
+```
+```{r, message=F, warning=F, echo=F}
+d <- read_csv("../data/WHR2018Chapter2OnlineData.csv") %>%
+  rename(happiness =`Life Ladder`, 
+         log_gdp =`Log GDP per capita`, 
+         social = `Social support`, 
+         health = `Healthy life expectancy at birth`, 
+         freedom = `Freedom to make life choices`, 
+         generosity = Generosity, 
+         corruption = `Perceptions of corruption`, 
+         pos_affect = `Positive affect`, 
+         neg_affect = `Negative affect`, 
+         gov_confidence = `Confidence in national government`, 
+         democracy = `Democratic Quality`, 
+         delivery = `Delivery Quality`, 
+         sd_happiness = `Standard deviation of ladder by country-year`, 
+         sd_mean_happiness = `Standard deviation/Mean of ladder by country-year`,
+         gini = `GINI index (World Bank estimate)`, 
+         gini_avg = `GINI index (World Bank estimate), average 2000-15`, 
+         gini_household = `gini of household income reported in Gallup, by wp5-year`)
+```
+```{r, message=F, warning=F, echo=F}
+missing_regions <- c("Comoros" = "Sub-Saharan Africa",
+  "Cuba" = "Latin America and Caribbean",
+  "Djibouti" = "Middle East and North Africa",
+  "Guyana" = "Latin America and Caribbean",
+  "Oman" = "Middle East and North Africa",
+  "Somaliland region" = "Middle East and North Africa",
+  "Suriname" = "Latin America and Caribbean",
+  "Swaziland" = "Sub-Saharan Africa")
+
+d2 <- read_csv("../data/WHR2018Chapter2OnlineData_supporting_factors.csv") %>%
+  select(country, region = `Region indicator`) 
+
+
+
+d <- d %>%
+  left_join( d2, by="country") %>%
+  mutate(region = ifelse(is.na(region), country, region)) %>%
+  mutate(region = str_replace_all(region, missing_regions)) %>%
+  mutate(continent = fct_collapse(region,
+                                  America=c("North America and ANZ", "Latin America and Caribbean"),
+                                  Africa=c("Middle East and North Africa", "Sub-Saharan Africa" ),
+                                  Asia=c("South Asia", "Southeast Asia", "East Asia", 
+                                         "Commonwealth of Independent States"),
+                                  Europe=c("Central and Eastern Europe", "Western Europe")
+                                  )) 
+```
+
+```{r, message=F, warning=F}
+country_spell_list <- c("Egypt, Arab Rep."="Egypt",
+   "Russian Federation"="Russia",
+   "Korea, Rep."="South Korea",
+   "Yemen, Rep."="Yemen",
+   "Slovak Republic"="Slovakia",
+   "Iran, Islamic Rep."="Iran",
+   "Congo, Rep."="Congo (Brazzaville)",
+   "Congo, Dem. Rep."="Congo (Kinshasa)",
+   "Hong Kong SAR, China"="Hong Kong S.A.R. of China",
+   "Cote d'Ivoire"="Ivory Coast",
+   "Kyrgyz Republic"="Kyrgyzstan",
+   "Macedonia, FYR"="Macedonia",
+   "Lao PDR"="Laos",
+   "Venezuela, RB"="Venezuela")
+
+gdp <- read_csv("../data/worldbank_gdp.csv",
+                skip=3) %>%
+  rename(country=`Country Name`, country_code=`Country Code`) %>%
+  select(country, country_code, `1960`:`2017`) %>%
+  gather(key="year", value="gdp", `1960`:`2017`) %>%
+  mutate(log_gdp = log(gdp),
+         year=as.numeric(year)) %>%
+  mutate(country = str_replace_all(country, country_spell_list))
+
+
+
+d <- d %>%
+  select(-log_gdp) %>% 
+  left_join( gdp, by=c("country", "year")) %>%
+  select(country, country_code, region, continent, year, happiness, gdp, log_gdp, social:gini_household)
+
+missing_country_codes <- c("Swaziland"="SWZ",
+  "Palestinian Territories"="PSE",
+  "North Cyprus"="CYP",
+  "Somaliland"="SOM",
+  "Taiwan Province of China"="TWN")
+
+d <- d %>% 
+ mutate(country_code = ifelse(is.na(country_code), country, country_code)) %>%
+  mutate(country_code = str_replace_all(country_code, missing_country_codes))
+
+bigger_text <-   theme(text=element_text(size=20),
+        axis.text = element_text(size=18)) 
+  
+```
+
+
+## How happy are people around the world?
+
+```{r, happy-plot, fig.show="hide", fig.height=7, fig.width=10, warning=F, message=F, dpi=160}
+d %>% 
+  filter(year==2017) %>%
+  ggplot(aes(x=happiness)) +
+  geom_histogram(bins=20, fill="steelblue", col="white") +
+  labs(x="Happiness", y="Count", title="Happiness in 2017") + 
+  geom_vline(xintercept = mean(d %>% filter(year == 2017) %>% pull(happiness))) + 
+  scale_x_continuous(breaks = c(0, 2.5,  5, 5.49, 7.5, 10), 
+                     labels = c(0, 2.5, "", 5.49, 7.5, 10),
+                    limits = c(0, 10) ) + 
+  theme_minimal() + bigger_text
+```
+.center[
+![:scale 80%](`r knitr::fig_chunk("happy-plot", "png")`)
+]
+---
+### Happiness over Time
+
+```{r, time-plot, fig.show="hide", message=F, warning=F, fig.width=10, dpi=120}
+trend <- d %>%
+  group_by(year) %>%
+  summarise(happiness = mean(happiness))
+
+d %>%
+  ggplot(aes(x=year, y=happiness)) + 
+  geom_line(aes(group=country, col=continent), alpha=0.7, size=0.3) +
+  scale_color_manual(values=c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#000000")) +
+  scale_x_continuous(breaks=c(2005, 2007, 2010, 2012, 2015, 2017)) +
+  geom_line(data=trend, size=1, aes(x=year, y=happiness, col="World Average")) +
+  theme_minimal() +
+  guides(colour = guide_legend(override.aes = list(alpha=1, size=1.5))) +
+  labs(x="Year", y="Happiness", color="Continent") + bigger_text
+```
+.center[
+![:scale 90%](`r knitr::fig_chunk("time-plot", "png")`)
+]
+
+---
+### Happiness throughout the World
+
+```{r,world-plot, fig.show="hide", fig.height=6, fig.width=9, dpi=200}
+map_correction <- c("Democratic Republic of the Congo"="Congo (Brazzaville)",
+                    "Palestine"="Palestinian Territories",
+                    "Republic of Congo"="Congo (Kinshasa)",
+                    "Taiwan"="Taiwan Province of China",
+                    "USA"="United States",
+                    "UK"="United Kingdom")
+
+world <- map_data("world") %>%
+  rename(country = region) %>%
+  mutate(country = str_replace_all(country, map_correction))
+
+world_map <- world %>%
+  left_join(d %>% 
+              group_by(country) %>%
+              summarize(happiness=mean(happiness), na.rm=T), by="country")
+
+world_map %>% 
+ggplot( aes(x=long, y=lat, group=group, fill=happiness)) +
+  geom_polygon(col="white", size=0.3) +
+  coord_cartesian() +
+  scale_fill_distiller(palette="RdYlGn", direction=1) +
+  theme_void() +
+  labs(fill="Happiness", title="Happiness around the World", subtitle="Average Happiness Score") +
+  guides(fill = guide_colourbar(barwidth = 0.5, barheight = 10)) 
+```
+.center[
+![](`r knitr::fig_chunk("world-plot", "png")`)
+]
+
+---
+
+### Happiest and Unhappiest countries
+```{r, happiest-unhappiest, fig.show="hide", fig.height=6, fig.width=8, dpi=120}
+happiest <- d %>% 
+  group_by(country) %>%
+  summarize(happiness=mean(happiness, na.rm=T),
+            sd_mean_happiness=mean(sd_mean_happiness, na.rm=T)) %>%
+  mutate(country = fct_reorder(country, happiness)) %>%
+  top_n(10, happiness) %>%
+    ggplot(aes(x=country, y=happiness)) +
+    geom_point(col="steelblue", size=3) +
+    geom_segment(aes(x=country,
+                   xend=country,
+                   y=0,
+                   yend=10),
+               alpha=0.6,
+               size=0.1) +
+  geom_segment(aes(x=country,
+                   xend=country,
+                   y=happiness - sd_mean_happiness,
+                   yend=happiness + sd_mean_happiness)) +
+  coord_flip() + theme_classic() + 
+  labs(title="Happiest Countries", y="", x="") +  theme(text=element_text(size=20),
+        axis.text = element_text(size=12)) 
+
+unhappiest <- d %>% 
+  group_by(country) %>%
+  summarize(happiness=mean(happiness, na.rm=T),
+            sd_mean_happiness=mean(sd_mean_happiness, na.rm=T)) %>%
+  mutate(country = fct_reorder(country, happiness)) %>%
+  top_n(-10, happiness) %>%
+    ggplot(aes(x=country, y=happiness)) +
+    geom_point(col="steelblue", size=3) +
+    geom_segment(aes(x=country,
+                   xend=country,
+                   y=0,
+                   yend=10),
+               alpha=0.6,
+               size=0.1) +
+  geom_segment(aes(x=country,
+                   xend=country,
+                   y=happiness - sd_mean_happiness,
+                   yend=happiness + sd_mean_happiness)) +
+  coord_flip() + theme_classic() +
+  labs(title="Unhappiest Countries", y="", x="",
+       caption = paste("Average happiness:",
+                      round(mean(d %>% filter(year==2017) %>% pull(happiness), na.rm=T), digits=2))) +  theme(text=element_text(size=20),
+        axis.text = element_text(size=12)) 
+
+happiest + unhappiest + plot_layout(ncol = 1)
+```
+.center[
+![:scale 85%](`r knitr::fig_chunk("happiest-unhappiest", "png")`)
+]
+
+---
+## Suporting Factors
+
+---
+### Economic Factors
+
+```{r, economical-plot, fig.show="hide", fig.height=9, fig.width=9, dpi=120, message=F, warning=F}
+d %>% 
+  filter(year == 2017) %>%
+  select(Happiness=happiness, 
+         GDP=gdp, `Log GDP`=log_gdp, 
+         `Gini Household`=gini_household, 
+         Generosity=generosity, continent) %>%
+  ggpairs(mapping=aes(col=continent, alpha=0.5), columns=1:5,
+          upper=list(continuous="points"),
+          lower=list(continuous="cor"),) + 
+  theme_minimal()  +  theme(text=element_text(size=20),
+        axis.text = element_text(size=12)) 
+```
+.center[
+![:scale 70%](`r knitr::fig_chunk("economical-plot", "png")`)
+]
+---
+### Social and Health Factors
+```{r, social-plot, fig.show="hide", fig.height=9, fig.width=9, dpi=120, message=F, warning=F}
+d %>% 
+  filter(year == 2017) %>%
+  select(Happiness=happiness, 
+         `Social Support`=social, 
+         `Life Expectation`=health, 
+         `Pos. Affect`=pos_affect, 
+         `Neg. Affect`=neg_affect, continent) %>%
+  ggpairs(mapping=aes(col=continent, alpha=0.5),
+          columns = 1:5,
+          upper=list(continuous="points"),
+          lower=list(continuous="cor"),) +
+  theme_minimal() +  theme(text=element_text(size=20),
+        axis.text = element_text(size=12)) 
+```
+.center[
+![:scale 70%](`r knitr::fig_chunk("social-plot", "png")`)
+]
+---
+### Political Factors
+
+```{r, political-plot, fig.show="hide", fig.height=9, fig.width=9, dpi=120}
+d %>% 
+  filter(year == 2016) %>%
+  select(Happiness=happiness, 
+         Freedom=freedom, 
+         Corruption=corruption, 
+         `Gov. confidence`=gov_confidence, 
+         Democracy=democracy,continent) %>%
+    ggpairs(mapping=aes(col=continent, alpha=0.5),
+          columns = 1:5,
+          upper=list(continuous="points"),
+          lower=list(continuous="cor"),) +
+  theme_minimal() +  theme(text=element_text(size=20),
+        axis.text = element_text(size=12)) 
+```
+.center[
+![:scale 70%](`r knitr::fig_chunk("political-plot", "png")`)
+]
+
+```{r, eval=F}
+d %>%
+  filter(year == 2017) %>%
+  mutate(isAfrica = continent == "Africa") %>%
+  ggplot(aes(x=gov_confidence, y=happiness, col=isAfrica, alpha=isAfrica)) + 
+  geom_point() +
+  geom_smooth(method = "lm", alpha=0.2, show.legend = F) +
+  scale_alpha_discrete(range=c(0.2, 1), guide=F) +
+  scale_color_manual(values=c("black", "#E41A1C"), 
+                     breaks=c( TRUE), labels="Africa", name="") + 
+  theme_minimal() +
+  labs(x="Confidence in Government", y="Happiness") +
+  guides(colour = guide_legend(override.aes = list(size=3))) 
+```
+
+---
+
+## Additional Data
+
+---
+
+### Climate Data
+```{r, temp-plot, fig.height=7, fig.width=10, fig.show="hide", dpi=160}
+temp <- read_csv("../data/temperature_data.csv") %>%
+  select(country_code=ISO_3DIGIT, avg_temp=Annual_temp)
+
+rain <- read_csv("../data/precipitation_data.csv") %>%
+  select(country_code=ISO_3DIGIT, annual_precip=Annual_precip)
+
+temp_plot <- d %>%
+  left_join(temp, by="country_code") %>%
+  group_by(country) %>%
+  summarise(happiness=mean(happiness, na.rm=T),
+            avg_temp=mean(avg_temp, na.rm=T)) %>%
+  ggplot(aes(x=avg_temp, y=happiness, fill=avg_temp)) +
+  geom_point(size=2.5, shape=21, col="grey") +
+  scale_fill_distiller(type="div", palette = "RdYlBu") +
+  theme_minimal() +
+  guides(fill = guide_colourbar(barwidth = 0.5, barheight = 15)) +
+  labs(title="Does Temperature have an Influence on Happiness?",
+       x="Average Temperature", y="Happiness", fill="Temperature\nin Celsius") + bigger_text
+
+rain_plot <- d %>%
+  left_join(rain, by="country_code") %>%
+  group_by(country) %>%
+  summarise(happiness=mean(happiness, na.rm=T),
+            avg_temp=mean(annual_precip, na.rm=T)) %>%
+  ggplot(aes(x=avg_temp, y=happiness, fill=avg_temp)) +
+  geom_point(size=2.5, shape=21, col="grey") +
+  scale_fill_distiller(type="seq", palette = "Blues", direction=1) +
+  theme_minimal() +
+  guides(fill = guide_colourbar(barwidth = 0.5, barheight = 15)) +
+  labs(title="Does Rain have an Influence on Happiness?",
+       x="Annual Precipitation", y="Happiness", fill="Precipitation\nin mm") + bigger_text
+
+temp_plot 
+```
+
+.center[
+![:scale 80%](`r knitr::fig_chunk("temp-plot", "png")`)
+]
+
+---
+### Climate Data
+```{r, rain-plot, fig.height=7, fig.width=10, fig.show="hide", dpi=160}
+rain_plot
+```
+
+.center[
+![:scale 80%](`r knitr::fig_chunk("rain-plot", "png")`)
+]
+
+---
+
+### Population Data and the famous Gapminder Plot
+
+```{r, warning=F, message=F}
+pop <- read_csv("../data/worldbank_population.csv",
+                skip=3) %>%
+  select(country=`Country Name`, `1960`:`2017`) %>%
+  mutate(country = str_replace_all(country, country_spell_list)) %>%
+  gather(key="year", value="pop", `1960`:`2017`) %>%
+  mutate(year = as.numeric(year),
+         log_pop = log(pop))
+  
+d <- d %>%
+  left_join(pop, by=c("country", "year"))
+```
+.center[
+```{r, gapminder-plot, fig.height=8, fig.width=8, message=F, fig.show="hide", dpi=100, warning=F}
+
+xlabs <- c(1000, 10000, 100000)
+options(scipen = 6)
+p <- d %>% 
+  filter(!is.na(gdp) & !is.na(pop)) %>%
+  mutate(year = as.integer(year)) %>%
+  arrange(desc(pop)) %>%
+  ggplot(aes(x=gdp, y=happiness, fill=continent, size=pop)) + 
+  geom_point(shape=21, show.legend = F) +
+  scale_x_log10(breaks=c(1000, 10000, 100000), 
+                labels=formatC(xlabs, digits = 0, format = "f", big.mark = ",")) +
+  scale_fill_brewer(type="qual", palette="Set1") +
+  scale_size(range=c(2,12), guide=F) +
+  labs(x="GDP per Capita", y="Happiness", title = 'Year: {frame_time}') +
+  facet_wrap(~continent) +
+  theme(panel.spacing=unit(3, "lines")) +
+  theme_minimal() + 
+  transition_time(year) + 
+  ease_aes('linear') + 
+  guides(fill = guide_legend(override.aes = list(size=5))) 
+  
+animate(p, 200, 10)
+```
+]
+
