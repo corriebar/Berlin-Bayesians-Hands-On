@@ -1,0 +1,16 @@
+---
+title: "Stan Model"
+author: "Corrie"
+date: "February 27, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+d <- read_csv("../data/")
+```
+
