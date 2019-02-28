@@ -69,7 +69,9 @@ generated quantities {
 ```
 
 ```{r}
-happy_fit <- sampling(happy_model, data = list(N=N, happiness_c=d2017$happiness_c, 
+happy_fit <- sampling(happy_model, data = list(N=N, 
+                                               continent_J=continent_J,
+                                               happiness_c=d2017$happiness_c, 
                                                log_gdp=d2017$log_gdp, continent=d2017$continent_i))
 ```
 
